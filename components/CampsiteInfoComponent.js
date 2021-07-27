@@ -1,17 +1,29 @@
 import React, { Component } from "react";
 import { Text, View, ScrollView, FlatList } from "react-native";
-import { Card } from "react-native-elements";
+import { Card, Icon } from "react-native-elements";
 import { CAMPSITES } from "../shared/campsites";
 import { COMMENTS } from "../shared/comments";
 
-function RenderCampsite({ campsite }) {
+function RenderCampsite( props ) {
+  const {campsite} = props;
+
   if (campsite) {
     return (
       <Card
         featuredTitle={campsite.name}
-        image={require("./images/react-lake.jpg")}
-      >
-        <Text style={{ margin: 10 }}>{campsite.description}</Text>
+        image={require("./images/react-lake.jpg")}>
+        <Text style={{ margin: 10 }}>
+            {campsite.description}
+        </Text>
+        <Icon
+          name={props.favorite ? "heart" : "heart-o"}
+          type="font-awesome"
+          color="#f50"
+          raised
+          reverse
+          onPress={() =>props.favorite ? 
+              console.log("Already set as a favorite") : props.markFavorite()}
+        />
       </Card>
     );
   }
@@ -24,7 +36,9 @@ function RenderComments({ comments }) {
       <View style={{ margin: 10 }}>
         <Text style={{ fontSize: 14 }}>{item.text}</Text>
         <Text style={{ fontSize: 12 }}>{item.rating} Stars</Text>
-        <Text style={{ fontSize: 12 }}>{`-- ${item.author}, ${item.date}`}</Text>
+        <Text
+          style={{ fontSize: 12 }}
+        >{`-- ${item.author}, ${item.date}`}</Text>
       </View>
     );
   };
@@ -46,8 +60,14 @@ class CampsiteInfo extends Component {
     this.state = {
       campsites: CAMPSITES,
       comments: COMMENTS,
+      favorite: false,
     };
   }
+
+  markFavorite() {
+    this.setState({favorite: true});
+}
+
 
   static navigationOptions = {
     title: "Campsite Information",
@@ -63,7 +83,10 @@ class CampsiteInfo extends Component {
     );
     return (
       <ScrollView>
-        <RenderCampsite campsite={campsite} />
+        <RenderCampsite campsite={campsite} 
+        favorite={this.state.favorite}
+        markFavorite={() => this.markFavorite()}
+        />
         <RenderComments comments={comments} />
       </ScrollView>
     );
