@@ -6,6 +6,7 @@ import CampsiteInfo from "./CampsiteInfoComponent";
 import About from "./AboutComponent";
 import Contact from "./ContactComponent";
 import Reservation from './ReservationComponent';
+import Favorites from './FavoritesComponent';
 import Constants from "expo-constants";
 import { View, Platform, StyleSheet, Text, ScrollView, Image } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
@@ -132,9 +133,9 @@ const ContactNavigator = createStackNavigator(
 );
 
 
-const ReservationNavigator = createStackNavigator(
+const FavoritesNavigator = createStackNavigator(
   {
-      Reservation: { screen: Reservation }
+      Favorites: { screen: Favorites }
   },
   {
       defaultNavigationOptions: ({navigation}) => ({
@@ -146,7 +147,7 @@ const ReservationNavigator = createStackNavigator(
               color: '#fff'
           },
           headerLeft: <Icon
-              name='tree'
+              name='heart'
               type='font-awesome'
               iconStyle={styles.stackIcon}
               onPress={() => navigation.toggleDrawer()}
@@ -203,13 +204,13 @@ const MainNavigator = createDrawerNavigator(
           }
       },
 
-      Reservation: {
-        screen: ReservationNavigator,
+      Favorites: {
+        screen: FavoritesNavigator,
         navigationOptions: {
-            drawerLabel: 'Reserve Campsite',
+            drawerLabel: 'My Favorites',
             drawerIcon: ({tintColor}) => (
                 <Icon
-                    name='tree'
+                    name='heart'
                     type='font-awesome'
                     size={24}
                     color={tintColor}
