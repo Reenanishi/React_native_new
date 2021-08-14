@@ -1,3 +1,4 @@
+import { registerRootComponent } from "expo";
 import React, { Component } from "react";
 import {
   Text,
@@ -10,7 +11,7 @@ import {
   Alert,
   PanResponder,
 } from "react-native";
-import { Card, Icon, Input, Rating } from "react-native-elements";
+import { Card, Icon, Rating, Input } from "react-native-elements";
 import { connect } from "react-redux";
 import { baseUrl } from "../shared/baseUrl";
 import { postFavorite, postComment } from "../redux/ActionCreators";
@@ -31,18 +32,22 @@ const mapDispatchToProps = {
 };
 
 function RenderCampsite(props) {
-  
-    const { campsite } = props;
-  
-    const view = React.createRef();
+  const { campsite } = props;
+
+  const view = React.createRef();
 
   const recognizeDrag = ({ dx }) => (dx < -200 ? true : false);
+
+  const recognizeComment = ({ dx }) => (dx > 200 ? true : false);
 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onPanResponderGrant: () => {
-        view.current.rubberBand(1000)
-        .then(endState => console.log(endState.finished ? 'finished' : 'canceled'));
+      view.current
+        .rubberBand(1000)
+        .then((endState) =>
+          console.log(endState.finished ? "finished" : "canceled")
+        );
     },
     onPanResponderEnd: (e, gestureState) => {
       console.log("pan responder end", gestureState);
@@ -66,6 +71,9 @@ function RenderCampsite(props) {
           ],
           { cancelable: false }
         );
+      } else if (recognizeComment(gestureState)) {
+        console.log("pan responder end", gestureState);
+        props.onShowModal();
       }
       return true;
     },
@@ -120,14 +128,12 @@ function RenderComments({ comments }) {
       <View style={{ margin: 10 }}>
         <Text style={{ fontSize: 14 }}>{item.text}</Text>
         <Rating
+          style={{ alignItems: "flex-start", paddingVertical: "5%" }}
           startingValue={item.rating}
           imageSize={10}
           readonly
-          style={{ alignItems: "flex-start", paddingVertical: "5%" }}
         />
-        <Text style={{ fontSize: 12 }}>
-          {`-- ${item.author}, ${item.date}`}
-        </Text>
+        <Text style={{ fontSize: 12 }}>{`--${item.author}, ${item.date}`}</Text>
       </View>
     );
   };
@@ -222,18 +228,14 @@ class CampsiteInfo extends Component {
               placeholder="Author"
               leftIcon={{ type: "font-awesome", name: "user-o" }}
               leftIconContainerStyle={{ paddingRight: 10 }}
-              onChangeText={(author) => {
-                this.setState({ author: author });
-              }}
+              onChangeText={(author) => this.setState({ author: author })}
               value={this.state.author}
             />
             <Input
               placeholder="Comment"
               leftIcon={{ type: "font-awesome", name: "comment-o" }}
               leftIconContainerStyle={{ paddingRight: 10 }}
-              onChangeText={(text) => {
-                this.setState({ text: text });
-              }}
+              onChangeText={(text) => this.setState({ text: text })}
               value={this.state.text}
             />
             <View style={{ margin: 10 }}>
@@ -249,6 +251,7 @@ class CampsiteInfo extends Component {
             <View style={{ margin: 10 }}>
               <Button
                 onPress={() => {
+                  // console.log(this.state.author);
                   this.toggleModal();
                   this.resetForm();
                 }}
@@ -276,5 +279,4 @@ const styles = StyleSheet.create({
     margin: 20,
   },
 });
-
 export default connect(mapStateToProps, mapDispatchToProps)(CampsiteInfo);
