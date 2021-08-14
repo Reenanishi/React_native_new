@@ -1,19 +1,17 @@
 import React, { Component } from "react";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import {
   Text,
   View,
   ScrollView,
   StyleSheet,
-  Picker,
   Switch,
   Button,
+  Picker,
   Alert,
 } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import * as Animatable from "react-native-animatable";
-import * as Notifications from 'expo-notifications';
-//import DateTimePicker from "@react-native-community/datetimepicker";
-// import { Picker } from "@react-native-picker/picker";
+import * as Notifications from "expo-notifications";
 
 class Reservation extends Component {
   constructor(props) {
@@ -24,7 +22,6 @@ class Reservation extends Component {
       hikeIn: false,
       date: new Date(),
       showCalendar: false,
-      showModal: false,
     };
   }
 
@@ -32,25 +29,28 @@ class Reservation extends Component {
     title: "Reserve Campsite",
   };
 
-  toggleModal() {
-    this.setState({ showModal: !this.state.showModal });
-  }
-
   handleReservation() {
-    console.log(JSON.stringify(this.state));
-    const message = `Number of Campers: ${this.state.campers} \n\nHike-In? ${
-      this.state.hikeIn
-    } \n\nDate: ${this.state.date.toLocaleDateString("en-US")}`;
     Alert.alert(
       "Begin Search?",
-      message,
+      `Number of Campers: ${this.state.campers} ${"\n"} ${"\n"} Hike-In? ${
+        this.state.hikeIn
+      } ${"\n"} ${"\n"} Date: ${this.state.date.toLocaleDateString("en-US")}`,
       [
         {
           text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
+          onPress: () => this.resetForm(),
           style: "cancel",
         },
-        { text: "OK", onPress: () => console.log("OK Pressed") },
+        {
+          text: "OK",
+          onPress: () => {
+            this.presentLocalNotification(
+              this.state.date.toLocaleDateString("en-US")
+            );
+
+            this.resetForm();
+          },
+        },
       ],
       { cancelable: false }
     );
@@ -62,35 +62,34 @@ class Reservation extends Component {
       hikeIn: false,
       date: new Date(),
       showCalendar: false,
-      showModal: false,
     });
   }
 
   async presentLocalNotification(date) {
     function sendNotification() {
-        Notifications.setNotificationHandler({
-            handleNotification: async () => ({
-                shouldShowAlert: true
-            })
-        });
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+        }),
+      });
 
-        Notifications.scheduleNotificationAsync({
-            content: {
-                title: 'Your Campsite Reservation Search',
-                body: `Search for ${date} requested`
-            },
-            trigger: null
-        });
+      Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Your Campsite Reservation Search",
+          body: `Search for ${date} requested`,
+        },
+        trigger: null,
+      });
     }
 
     let permissions = await Notifications.getPermissionsAsync();
     if (!permissions.granted) {
-        permissions = await Notifications.requestPermissionsAsync();
+      permissions = await Notifications.requestPermissionsAsync();
     }
     if (permissions.granted) {
-        sendNotification();
+      sendNotification();
     }
-}
+  }
 
   render() {
     return (
@@ -165,10 +164,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flex: 1,
     flexDirection: "row",
-    marginLeft: 20,
-    marginBottom: 20,
-    marginRight: 20,
-    marginTop: 0,
+    margin: 20,
   },
   formLabel: {
     fontSize: 18,
